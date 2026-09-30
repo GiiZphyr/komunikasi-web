@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <title>Komunikasi Web - PHASE 1</title>
+
+  <style>
+    :root {
+      --steel: #B0C4DE;
+    }
+
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 40px;
+      background: #fff;
+      color: #111;
+    }
+
+    .card {
+      max-width: 600px;
+      margin: auto;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+    }
+
+    code {
+      background: var(--steel);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>PHASE 1 OK</h1>
+
+    <p>Server lokal jalan. Git siap.</p>
+
+    <p>
+      Status:
+      <code id="s">checking...</code>
+    </p>
+  </div>
+
+  <script>
+    document.getElementById('s').textContent =
+      'ready @ ' + location.href;
+  </script>
+</body>
+</html>
