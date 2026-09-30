@@ -2,58 +2,48 @@
 <html lang="id">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
 
-  <title>Komunikasi Web - PHASE 1</title>
+  <title>Komunikasi Web</title>
 
-  <style>
-    :root {
-      --steel: #B0C4DE;
-    }
-
-    body {
-      font-family: system-ui, sans-serif;
-      margin: 0;
-      padding: 40px;
-      background: #fff;
-      color: #111;
-    }
-
-    .card {
-      max-width: 600px;
-      margin: auto;
-      border: 1px solid #222;
-      border-radius: 12px;
-      padding: 24px;
-    }
-
-    h1 {
-      margin: 0 0 8px;
-    }
-
-    code {
-      background: var(--steel);
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-  </style>
+  <link rel="stylesheet" href="./css/global.css">
 </head>
 
 <body>
-  <div class="card">
-    <h1>PHASE 1 OK</h1>
+  <div class="container">
+    <div class="card">
+      <h2>Loading...</h2>
 
-    <p>Server lokal jalan. Git siap.</p>
-
-    <p>
-      Status:
-      <code id="s">checking...</code>
-    </p>
+      <p id="msg">
+        Mengecek sesi pengguna...
+      </p>
+    </div>
   </div>
 
-  <script>
-    document.getElementById('s').textContent =
-      'ready @ ' + location.href;
+  <script type="module">
+    import { supabase } from "./js/supabase.js";
+
+    const msg = document.getElementById("msg");
+
+    if (!supabase) {
+      msg.textContent =
+        "PHASE 2 OK - Supabase belum dikonfigurasi.";
+
+      setTimeout(() => {
+        location.href = "./login.html";
+      }, 800);
+    } else {
+      const {
+        data: { session }
+      } = await supabase.auth.getSession();
+
+      location.href = session
+        ? "./pages/chat.html"
+        : "./login.html";
+    }
   </script>
 </body>
 </html>
