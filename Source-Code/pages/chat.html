@@ -22,18 +22,17 @@
 </head>
 
 <body>
-  <div class="topbar">
+
+  <header class="topbar">
     <div class="brand">
       Komunikasi
     </div>
 
-    <div>
-      <input
-        type="search"
-        placeholder="Search chat"
-        style="width: 160px"
-      >
-    </div>
+    <input
+      type="search"
+      placeholder="Search chat"
+      aria-label="Cari chat"
+    >
 
     <button
       class="btn"
@@ -42,14 +41,74 @@
     >
       +
     </button>
-  </div>
+  </header>
 
-  <div class="container">
-    <div class="card">
-      Daftar percakapan muncul di PHASE 6.
-      Fondasi OK.
+  <main class="container">
+    <div
+      class="card"
+      style="padding: 0; overflow: hidden;"
+    >
+
+      <div class="list-item">
+        <div class="avatar"></div>
+
+        <div>
+          <div style="font-weight: 700;">
+            Preview Chat
+          </div>
+
+          <div
+            style="
+              color: var(--muted);
+              font-size: 13px;
+            "
+          >
+            Halo, ini layout PHASE 5
+          </div>
+        </div>
+
+        <div
+          style="
+            margin-left: auto;
+            color: var(--muted);
+            font-size: 12px;
+          "
+        >
+          10:30
+        </div>
+      </div>
+
+      <div class="list-item">
+        <div class="avatar"></div>
+
+        <div>
+          <div style="font-weight: 700;">
+            Grup Keluarga
+          </div>
+
+          <div
+            style="
+              color: var(--muted);
+              font-size: 13px;
+            "
+          >
+            Preview pesan terakhir...
+          </div>
+        </div>
+
+        <div
+          style="
+            margin-left: auto;
+            color: var(--muted);
+            font-size: 12px;
+          "
+        >
+          09:12
+        </div>
+      </div>
+
     </div>
-  </div>
+  </main>
 
   <nav class="bottom-nav">
     <a
@@ -71,5 +130,16 @@
       Profile
     </a>
   </nav>
+
+  <script type="module">
+    import "../js/theme.js";
+
+    import {
+      checkSession
+    } from "../js/auth.js";
+
+    await checkSession(true);
+  </script>
+
 </body>
 </html>

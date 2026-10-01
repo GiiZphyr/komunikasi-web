@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <title>Status - Komunikasi Web</title>
+
+  <link
+    rel="stylesheet"
+    href="../css/global.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="../css/status.css"
+  >
+</head>
+
+<body>
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="brand">
+      Komunikasi
+    </div>
+
+    <div>
+      <button
+        class="btn"
+        type="button"
+      >
+        + Status
+      </button>
+    </div>
+  </header>
+
+
+  <!-- Main Content -->
+  <main class="container">
+
+    <!-- Status Saya -->
+    <div class="card">
+      <h2>Status Saya</h2>
+
+      <div class="list-item">
+        <div class="avatar"></div>
+
+        <div>
+          <div style="font-weight: 700;">
+            Status saya
+          </div>
+
+          <div
+            style="
+              color: var(--muted);
+              font-size: 13px;
+            "
+          >
+            Tambahkan status baru
+          </div>
+        </div>
+
+        <div
+          style="
+            margin-left: auto;
+            color: var(--muted);
+            font-size: 12px;
+          "
+        >
+          +
+        </div>
+      </div>
+    </div>
+
+
+    <br>
+
+
+    <!-- Status Teman -->
+    <div class="card">
+      <h2>Status Teman</h2>
+
+      <div class="list-item">
+        <div class="avatar"></div>
+
+        <div>
+          <div style="font-weight: 700;">
+            Preview Status
+          </div>
+
+          <div
+            style="
+              color: var(--muted);
+              font-size: 13px;
+            "
+          >
+            Status teman muncul di PHASE 9
+          </div>
+        </div>
+
+        <div
+          style="
+            margin-left: auto;
+            color: var(--muted);
+            font-size: 12px;
+          "
+        >
+          10:15
+        </div>
+      </div>
+    </div>
+
+
+    <br>
+
+
+    <!-- Status Public -->
+    <div class="card">
+      <h2>Status Public</h2>
+
+      <div class="list-item">
+        <div class="avatar"></div>
+
+        <div>
+          <div style="font-weight: 700;">
+            Public Status
+          </div>
+
+          <div
+            style="
+              color: var(--muted);
+              font-size: 13px;
+            "
+          >
+            Status pengguna public muncul di PHASE 9
+          </div>
+        </div>
+
+        <div
+          style="
+            margin-left: auto;
+            color: var(--muted);
+            font-size: 12px;
+          "
+        >
+          Public
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+
+    <a href="./chat.html">
+      Obrolan
+    </a>
+
+    <a
+      href="./status.html"
+      class="active"
+    >
+      Status
+    </a>
+
+    <a href="./search.html">
+      Pencarian
+    </a>
+
+    <a href="./profile.html">
+      Profile
+    </a>
+
+  </nav>
+
+
+  <!-- Scripts -->
+  <script type="module">
+    import "../js/theme.js";
+
+    import {
+      checkSession
+    } from "../js/auth.js";
+
+    await checkSession(true);
+  </script>
+
+</body>
+</html>

@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="./css/auth.css">
 </head>
 
-<body>
+<body class="auth-page">
   <div
     class="container"
     style="max-width: 420px"
@@ -63,38 +63,38 @@
     </div>
   </div>
 
-  <script type="module">
+<script type="module">
     import {
-      signUp,
-      checkSession
-    } from "./js/auth.js";
+        signUp,
+        checkSession
+        } from "./js/auth.js";
 
     await checkSession(false);
 
     document
-      .getElementById("registerBtn")
-      .addEventListener("click", async () => {
+        .getElementById("registerBtn")
+        .addEventListener("click", async () => {
         const email = document
-          .getElementById("email")
-          .value
-          .trim();
+        .getElementById("email")
+        .value
+        .trim();
 
         const password = document
-          .getElementById("pass")
-          .value;
+        .getElementById("pass")
+        .value;
 
         if (!email || !password) {
-          alert("Email dan password wajib diisi.");
-          return;
+            alert("Email dan password wajib diisi.");
+            return;
         }
 
         if (password.length < 6) {
-          alert("Password minimal 6 karakter.");
-          return;
+            alert("Password minimal 6 karakter.");
+            return;
         }
 
         await signUp(email, password);
-      });
-  </script>
+        });
+</script>
 </body>
 </html>

@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <title>Pencarian - Komunikasi Web</title>
+
+  <link
+    rel="stylesheet"
+    href="../css/global.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="../css/search.css"
+  >
+</head>
+
+<body>
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="brand">
+      Pencarian
+    </div>
+
+    <input
+      type="search"
+      placeholder="Cari pengguna..."
+      aria-label="Cari pengguna"
+    >
+  </header>
+
+
+  <!-- Main Content -->
+  <main class="container">
+
+    <!-- Search -->
+    <div class="card">
+
+      <h2>Cari Pengguna</h2>
+
+      <input
+        id="searchInput"
+        type="search"
+        placeholder="Username atau nama pengguna"
+        autocomplete="off"
+      >
+
+      <br><br>
+
+      <button
+        id="searchBtn"
+        class="btn"
+        type="button"
+      >
+        Cari
+      </button>
+
+    </div>
+
+
+    <br>
+
+
+    <!-- Location Search -->
+    <div class="card">
+
+      <h2>Pengguna Terdekat</h2>
+
+      <p
+        style="
+          color: var(--muted);
+          font-size: 14px;
+          margin-top: 0;
+        "
+      >
+        Pencarian berdasarkan lokasi akan tersedia
+        pada PHASE 10.
+      </p>
+
+      <div class="list-item">
+
+        <div class="avatar"></div>
+
+        <div>
+
+          <div style="font-weight: 700;">
+            Contoh Pengguna
+          </div>
+
+          <div
+            style="
+              color: var(--muted);
+              font-size: 13px;
+            "
+          >
+            Jarak akan ditampilkan di PHASE 10
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <br>
+
+
+    <!-- Search Result -->
+    <div class="card">
+
+      <h2>Hasil Pencarian</h2>
+
+      <div class="list-item">
+
+        <div class="avatar"></div>
+
+        <div>
+
+          <div style="font-weight: 700;">
+            Belum Ada Hasil
+          </div>
+
+          <div
+            style="
+              color: var(--muted);
+              font-size: 13px;
+            "
+          >
+            Fitur pencarian user akan dibuat pada PHASE 10.
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+
+    <a href="./chat.html">
+      Obrolan
+    </a>
+
+    <a href="./status.html">
+      Status
+    </a>
+
+    <a
+      href="./search.html"
+      class="active"
+    >
+      Pencarian
+    </a>
+
+    <a href="./profile.html">
+      Profile
+    </a>
+
+  </nav>
+
+
+  <!-- Scripts -->
+  <script type="module">
+    import "../js/theme.js";
+
+    import {
+      checkSession
+    } from "../js/auth.js";
+
+    await checkSession(true);
+  </script>
+
+</body>
+</html>

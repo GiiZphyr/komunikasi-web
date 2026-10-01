@@ -1,30 +1,257 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Profile</title>
-    </head>
-    <body>
-    <button
-        id="logoutBtn"
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <title>Profile - Komunikasi Web</title>
+
+  <link
+    rel="stylesheet"
+    href="../css/global.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="../css/profile.css"
+  >
+</head>
+
+<body>
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="brand">
+      Profile
+    </div>
+  </header>
+
+
+  <!-- Main Content -->
+  <main class="container">
+
+    <!-- Profile Card -->
+    <div class="card">
+
+      <div
+        style="
+          display: flex;
+          gap: 12px;
+          align-items: center;
+        "
+      >
+
+        <div
+          class="avatar"
+          style="
+            width: 64px;
+            height: 64px;
+          "
+        ></div>
+
+        <div>
+
+          <div
+            style="
+              font-weight: 800;
+              font-size: 18px;
+            "
+          >
+            Username
+          </div>
+
+          <div
+            style="
+              color: var(--muted);
+              font-size: 14px;
+            "
+          >
+            bio singkat
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <br>
+
+
+    <!-- Account -->
+    <div class="card">
+
+      <h2>Akun</h2>
+
+      <div class="list-item">
+
+        <div>
+
+          <div style="font-weight: 700;">
+            Email
+          </div>
+
+          <div
+            style="
+              color: var(--muted);
+              font-size: 13px;
+            "
+          >
+            Email akun akan tampil pada PHASE 13
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="list-item">
+
+        <div>
+
+          <div style="font-weight: 700;">
+            Keamanan
+          </div>
+
+          <div
+            style="
+              color: var(--muted);
+              font-size: 13px;
+            "
+          >
+            Pengaturan keamanan tersedia pada PHASE 13
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <br>
+
+
+    <!-- Theme -->
+    <div class="card">
+
+      <h2>Tampilan</h2>
+
+      <p
+        style="
+          color: var(--muted);
+          font-size: 14px;
+        "
+      >
+        Pilih tampilan sesuai kebutuhan.
+      </p>
+
+      <button
         class="btn"
+        id="themeBtn"
         type="button"
-        >Logout
-    </button>
-    <script type="module">
+      >
+        Toggle Tema
+      </button>
+
+    </div>
+
+
+    <br>
+
+
+    <!-- Logout -->
+    <div class="card">
+
+      <h2>Sesi</h2>
+
+      <p
+        style="
+          color: var(--muted);
+          font-size: 14px;
+        "
+      >
+        Keluar dari akun pada perangkat ini.
+      </p>
+
+      <button
+        class="btn"
+        id="logoutBtn"
+        type="button"
+      >
+        Logout
+      </button>
+
+    </div>
+
+  </main>
+
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+
+    <a href="./chat.html">
+      Obrolan
+    </a>
+
+    <a href="./status.html">
+      Status
+    </a>
+
+    <a href="./search.html">
+      Pencarian
+    </a>
+
+    <a
+      href="./profile.html"
+      class="active"
+    >
+      Profile
+    </a>
+
+  </nav>
+
+
+  <!-- Scripts -->
+  <script type="module">
+
     import {
-        checkSession,
-        signOut
+      toggleTheme
+    } from "../js/theme.js";
+
+    import {
+      checkSession,
+      signOut
     } from "../js/auth.js";
+
 
     const session = await checkSession(true);
 
+
     if (session) {
-        document
+
+      document
+        .getElementById("themeBtn")
+        .addEventListener(
+          "click",
+          toggleTheme
+        );
+
+
+      document
         .getElementById("logoutBtn")
-        .addEventListener("click", async () => {
-            await signOut();
-        });
+        .addEventListener(
+          "click",
+          signOut
+        );
+
     }
-    </script>
-    </body>
+
+  </script>
+
+</body>
 </html>
