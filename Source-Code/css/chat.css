@@ -38,7 +38,7 @@
   border-bottom: 1px solid var(--border);
 }
 
-.chat-header #chat-title {
+#chat-title {
   font-weight: 700;
 }
 
@@ -60,9 +60,18 @@
   gap: 10px;
 }
 
+#messageList::-webkit-scrollbar {
+  width: 4px;
+}
+
+#messageList::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
 
 /* =========================================================
-   MESSAGE BUBBLE
+   MESSAGE
    ========================================================= */
 
 .message-bubble {
@@ -90,20 +99,10 @@
   color: var(--text);
 }
 
-
-/* =========================================================
-   MESSAGE CONTENT
-   ========================================================= */
-
 .message-content {
   line-height: 1.4;
   white-space: pre-wrap;
 }
-
-
-/* =========================================================
-   MESSAGE TIME
-   ========================================================= */
 
 .message-time {
   margin-top: 4px;
@@ -113,11 +112,6 @@
 
   text-align: right;
 }
-
-
-/* =========================================================
-   EMPTY STATE
-   ========================================================= */
 
 .chat-empty {
   margin: auto;
@@ -131,7 +125,7 @@
 
 
 /* =========================================================
-   MESSAGE INPUT
+   INPUT AREA
    ========================================================= */
 
 .input-area {
@@ -141,9 +135,9 @@
   align-items: flex-end;
   gap: 8px;
 
-  border-top: 1px solid var(--border);
-
   background: var(--bg);
+
+  border-top: 1px solid var(--border);
 }
 
 .input-area textarea {
@@ -163,16 +157,11 @@
   border-radius: 10px;
 
   font: inherit;
-
-  outline: none;
 }
 
 .input-area textarea:focus {
+  outline: none;
   border-color: var(--steel);
-}
-
-.input-area .btn {
-  flex-shrink: 0;
 }
 
 

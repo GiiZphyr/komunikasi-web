@@ -1,24 +1,12 @@
 import { supabase } from "./supabase.js";
 
+import {
+  subscribeMessages,
+  unsubscribeMessages
+} from "./realtime.js";
 
-/* =========================================================
-   HELPER: Escape HTML
-   Mencegah isi pesan user dianggap sebagai HTML.
-   ========================================================= */
+let renderedIds = new Set();
 
-function escapeHTML(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-
-/* =========================================================
-   HELPER: Format waktu
-   ========================================================= */
 
 function formatTime(dateString) {
   return new Date(dateString).toLocaleTimeString(
@@ -31,11 +19,65 @@ function formatTime(dateString) {
 }
 
 
+function renderMessage(message, isMe) {
+  const messageList =
+    document.getElementById("messageList");
+
+  const empty =
+    document.getElementById("emptyMsgState");
+
+  if (!messageList) {
+    return;
+  }
+
+  if (empty) {
+    empty.remove();
+  }
+
+  const bubble =
+    document.createElement("div");
+
+  bubble.className =
+    `message-bubble ${
+      isMe
+        ? "message-me"
+        : "message-other"
+    }`;
+
+  const content =
+    document.createElement("div");
+
+  content.className =
+    "message-content";
+
+  content.textContent =
+    message.content || "";
+
+  const time =
+    document.createElement("div");
+
+  time.className =
+    "message-time";
+
+  time.textContent =
+    formatTime(message.created_at);
+
+  bubble.appendChild(content);
+  bubble.appendChild(time);
+
+  messageList.appendChild(bubble);
+
+  messageList.scrollTop =
+    messageList.scrollHeight;
+}
+
+
 /* =========================================================
    6A - LOAD CONVERSATIONS
    ========================================================= */
 
 export async function loadConversations() {
+  unsubscribeMessages();
 
   const list =
     document.getElementById(
@@ -52,19 +94,9 @@ export async function loadConversations() {
       "loadingState"
     );
 
-
-  if (
-    !list ||
-    !empty ||
-    !loading
-  ) {
+  if (!list || !empty || !loading) {
     return;
   }
-
-
-  /* =========================
-     SESSION
-     ========================= */
 
   const {
     data: {
@@ -74,35 +106,23 @@ export async function loadConversations() {
   } =
     await supabase.auth.getSession();
 
-
   if (sessionError) {
-
     loading.textContent =
       "Session error: " +
       sessionError.message;
 
     return;
-
   }
 
-
   if (!session) {
-
     location.href =
       "../login.html";
 
     return;
-
   }
-
 
   const uid =
     session.user.id;
-
-
-  /* =========================
-     CONVERSATIONS
-     ========================= */
 
   const {
     data: members,
@@ -116,8 +136,7 @@ export async function loadConversations() {
           id,
           type,
           name,
-          avatar_url,
-          created_at
+          avatar_url
         )
       `)
       .eq(
@@ -125,17 +144,13 @@ export async function loadConversations() {
         uid
       );
 
-
   if (error) {
-
     loading.textContent =
       "Error: " +
       error.message;
 
     return;
-
   }
-
 
   const conversations =
     (members || [])
@@ -145,33 +160,21 @@ export async function loadConversations() {
       )
       .filter(Boolean);
 
-
   loading.style.display =
     "none";
 
-
-  if (
-    conversations.length === 0
-  ) {
-
+  if (conversations.length === 0) {
     empty.style.display =
       "block";
 
     return;
-
   }
 
-
-  /* =========================
-     LAST MESSAGE
-     ========================= */
-
-  const conversationIds =
+  const ids =
     conversations.map(
       (conversation) =>
         conversation.id
     );
-
 
   const {
     data: lastMessages,
@@ -187,7 +190,7 @@ export async function loadConversations() {
       `)
       .in(
         "conversation_id",
-        conversationIds
+        ids
       )
       .order(
         "created_at",
@@ -196,165 +199,117 @@ export async function loadConversations() {
         }
       );
 
-
   if (messageError) {
-
     loading.textContent =
       "Error: " +
       messageError.message;
 
     return;
-
   }
 
-
-  const lastMessageMap =
+  const lastMap =
     new Map();
 
-
   (lastMessages || [])
-    .forEach(
-      (message) => {
-
-        if (
-          !lastMessageMap.has(
-            message.conversation_id
-          )
-        ) {
-
-          lastMessageMap.set(
-            message.conversation_id,
-            message
-          );
-
-        }
-
+    .forEach((message) => {
+      if (
+        !lastMap.has(
+          message.conversation_id
+        )
+      ) {
+        lastMap.set(
+          message.conversation_id,
+          message
+        );
       }
-    );
-
-
-  /* =========================
-     RENDER LIST
-     ========================= */
+    });
 
   list.innerHTML =
     conversations
-      .map(
-        (conversation) => {
+      .map((conversation) => {
+        const last =
+          lastMap.get(
+            conversation.id
+          );
 
-          const lastMessage =
-            lastMessageMap.get(
+        const preview =
+          last
+            ? (
+                last.type !== "text"
+                  ? `[${last.type}] `
+                  : ""
+              ) +
+              (
+                last.content ||
+                ""
+              )
+            : "Belum ada pesan";
+
+        const time =
+          last
+            ? formatTime(
+                last.created_at
+              )
+            : "";
+
+        const name =
+          conversation.name ||
+          "Private Chat";
+
+        return `
+          <a
+            href="./chat.html?id=${encodeURIComponent(
               conversation.id
-            );
+            )}"
+            class="list-item"
+          >
 
+            <div class="avatar"></div>
 
-          const preview =
-            lastMessage
-              ? (
-                  lastMessage.type !==
-                  "text"
-                    ? `[${lastMessage.type}] `
-                    : ""
-                ) +
-                (
-                  lastMessage.content ||
-                  ""
-                )
-              : "Belum ada pesan";
-
-
-          const time =
-            lastMessage
-              ? formatTime(
-                  lastMessage.created_at
-                )
-              : "";
-
-
-          const name =
-            conversation.name ||
-            "Private Chat";
-
-
-          const avatar =
-            conversation.avatar_url
-              ? `
-                  <img
-                    src="${escapeHTML(
-                      conversation.avatar_url
-                    )}"
-                    alt=""
-                    style="
-                      width: 100%;
-                      height: 100%;
-                      object-fit: cover;
-                      border-radius: 50%;
-                    "
-                  >
-                `
-              : "";
-
-
-          return `
-            <a
-              href="./chat.html?id=${encodeURIComponent(
-                conversation.id
-              )}"
-              class="list-item"
+            <div
+              style="
+                min-width: 0;
+                flex: 1;
+              "
             >
-
-              <div class="avatar">
-                ${avatar}
-              </div>
-
               <div
                 style="
-                  min-width: 0;
-                  flex: 1;
+                  font-weight: 700;
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
                 "
               >
-
-                <div
-                  style="
-                    font-weight: 700;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                  "
-                >
-                  ${escapeHTML(name)}
-                </div>
-
-                <div
-                  style="
-                    color: var(--muted);
-                    font-size: 13px;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                  "
-                >
-                  ${escapeHTML(preview)}
-                </div>
-
+                ${name}
               </div>
 
               <div
                 style="
-                  margin-left: 8px;
-                  font-size: 12px;
                   color: var(--muted);
-                  flex-shrink: 0;
+                  font-size: 13px;
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
                 "
               >
-                ${escapeHTML(time)}
+                ${preview}
               </div>
+            </div>
 
-            </a>
-          `;
+            <div
+              style="
+                margin-left: 8px;
+                font-size: 12px;
+                color: var(--muted);
+                flex-shrink: 0;
+              "
+            >
+              ${time}
+            </div>
 
-        }
-      )
+          </a>
+        `;
+      })
       .join("");
 }
 
@@ -363,9 +318,11 @@ export async function loadConversations() {
    6B - LOAD MESSAGES
    ========================================================= */
 
-export async function loadMessages(
-  convId
-) {
+export async function loadMessages(convId) {
+  unsubscribeMessages();
+
+  renderedIds =
+    new Set();
 
   const listView =
     document.getElementById(
@@ -387,20 +344,13 @@ export async function loadMessages(
       "chat-title"
     );
 
-
   if (
     !listView ||
     !chatView ||
     !messageList
   ) {
     return;
-
   }
-
-
-  /* =========================
-     SESSION
-     ========================= */
 
   const {
     data: {
@@ -410,27 +360,12 @@ export async function loadMessages(
   } =
     await supabase.auth.getSession();
 
-
-  if (sessionError) {
-
-    messageList.textContent =
-      "Session error: " +
-      sessionError.message;
-
-    return;
-
-  }
-
-
-  if (!session) {
-
+  if (sessionError || !session) {
     location.href =
       "../login.html";
 
     return;
-
   }
-
 
   const uid =
     session.user.id;
@@ -457,20 +392,15 @@ export async function loadMessages(
       )
       .maybeSingle();
 
-
   if (memberError) {
-
     messageList.textContent =
       "Gagal memeriksa akses: " +
       memberError.message;
 
     return;
-
   }
 
-
   if (!member) {
-
     alert(
       "Kamu tidak memiliki akses ke percakapan ini."
     );
@@ -479,7 +409,6 @@ export async function loadMessages(
       "./chat.html";
 
     return;
-
   }
 
 
@@ -495,12 +424,11 @@ export async function loadMessages(
 
 
   /* =========================
-     GET CONVERSATION
+     CONVERSATION INFO
      ========================= */
 
   const {
-    data: conversation,
-    error: conversationError
+    data: conversation
   } =
     await supabase
       .from("conversations")
@@ -513,27 +441,33 @@ export async function loadMessages(
       )
       .maybeSingle();
 
-
-  if (conversationError) {
-
-    chatTitle.textContent =
-      "Chat";
-
-  } else {
-
-    chatTitle.textContent =
-      conversation?.name ||
-      (
-        conversation?.type === "group"
-          ? "Group Chat"
-          : "Private Chat"
-      );
-
-  }
+  chatTitle.textContent =
+    conversation?.name ||
+    (
+      conversation?.type === "group"
+        ? "Group Chat"
+        : "Private Chat"
+    );
 
 
   /* =========================
-     GET MESSAGES
+     SUBSCRIBE BEFORE INITIAL LOAD
+     ========================= */
+
+  subscribeMessages(
+    convId,
+    renderedIds,
+    (message) => {
+      renderMessage(
+        message,
+        message.sender_id === uid
+      );
+    }
+  );
+
+
+  /* =========================
+     INITIAL MESSAGE LOAD
      ========================= */
 
   const {
@@ -562,135 +496,71 @@ export async function loadMessages(
         }
       );
 
-
   if (messagesError) {
-
     messageList.textContent =
       "Gagal memuat pesan: " +
       messagesError.message;
 
     return;
-
   }
 
 
-  /* =========================
-     EMPTY STATE
-     ========================= */
+  messageList.innerHTML = "";
 
   if (
     !messages ||
     messages.length === 0
   ) {
-
     messageList.innerHTML = `
-      <div class="chat-empty">
+      <div
+        id="emptyMsgState"
+        class="chat-empty"
+      >
         Belum ada pesan.
       </div>
     `;
-
-    return;
-
   }
 
 
-  /* =========================
-     RENDER MESSAGES
-     ========================= */
+  (messages || [])
+    .forEach((message) => {
 
-  messageList.innerHTML =
-    messages
-      .map(
-        (message) => {
+      if (
+        renderedIds.has(message.id)
+      ) {
+        return;
+      }
 
-          const isMe =
-            message.sender_id ===
-            uid;
+      renderedIds.add(
+        message.id
+      );
 
+      renderMessage(
+        message,
+        message.sender_id === uid
+      );
 
-          const content =
-            message.deleted_at
-              ? "Pesan telah dihapus."
-              : (
-                  message.type ===
-                  "text"
-                    ? message.content || ""
-                    : `[${message.type}] ${
-                        message.content || ""
-                      }`
-                );
-
-
-          return `
-            <div
-              class="
-                message-bubble
-                ${
-                  isMe
-                    ? "message-me"
-                    : "message-other"
-                }
-              "
-            >
-
-              <div class="message-content">
-                ${escapeHTML(content)}
-              </div>
-
-              <div class="message-time">
-                ${formatTime(
-                  message.created_at
-                )}
-
-                ${
-                  message.is_edited &&
-                  !message.deleted_at
-                    ? " · diedit"
-                    : ""
-                }
-              </div>
-
-            </div>
-          `;
-
-        }
-      )
-      .join("");
-
-
-  /* Scroll to newest message */
-
-  messageList.scrollTop =
-    messageList.scrollHeight;
+    });
 }
 
 
 /* =========================================================
-   6C - SEND TEXT MESSAGE
+   6C + 6D - SEND MESSAGE
    ========================================================= */
 
 export async function sendMessage(
   convId,
   content
 ) {
-
   const cleanContent =
     content.trim();
 
-
   if (!cleanContent) {
-
     return {
       success: false,
       error: "Pesan kosong."
     };
-
   }
-
-
-  /* =========================
-     SESSION
-     ========================= */
 
   const {
     data: {
@@ -700,24 +570,7 @@ export async function sendMessage(
   } =
     await supabase.auth.getSession();
 
-
-  if (sessionError) {
-
-    alert(
-      "Session error: " +
-      sessionError.message
-    );
-
-    return {
-      success: false,
-      error: sessionError
-    };
-
-  }
-
-
-  if (!session) {
-
+  if (sessionError || !session) {
     location.href =
       "../login.html";
 
@@ -725,9 +578,7 @@ export async function sendMessage(
       success: false,
       error: "Not authenticated."
     };
-
   }
-
 
   const uid =
     session.user.id;
@@ -754,9 +605,7 @@ export async function sendMessage(
       )
       .maybeSingle();
 
-
   if (memberError) {
-
     alert(
       "Gagal memeriksa akses: " +
       memberError.message
@@ -766,21 +615,17 @@ export async function sendMessage(
       success: false,
       error: memberError
     };
-
   }
 
-
   if (!member) {
-
     alert(
-      "Kamu tidak memiliki akses ke percakapan ini."
+      "Kamu tidak memiliki akses ke chat ini."
     );
 
     return {
       success: false,
       error: "Access denied."
     };
-
   }
 
 
@@ -800,14 +645,16 @@ export async function sendMessage(
         type: "text",
         content: cleanContent
       })
-      .select(
-        "id, sender_id, type, content, created_at"
-      )
+      .select(`
+        id,
+        sender_id,
+        type,
+        content,
+        created_at
+      `)
       .single();
 
-
   if (error) {
-
     alert(
       "Gagal mengirim pesan: " +
       error.message
@@ -817,93 +664,21 @@ export async function sendMessage(
       success: false,
       error
     };
-
   }
 
 
   /* =========================
-     UPDATE UI LOKAL
+     LOCAL RENDER
      ========================= */
 
-  const messageList =
-    document.getElementById(
-      "messageList"
-    );
-
-
-  if (!messageList) {
-
-    return {
-      success: true,
-      data
-    };
-
-  }
-
-
-  const emptyState =
-    messageList.querySelector(
-      ".chat-empty"
-    );
-
-
-  if (emptyState) {
-    emptyState.remove();
-  }
-
-
-  const bubble =
-    document.createElement(
-      "div"
-    );
-
-
-  bubble.className =
-    "message-bubble message-me";
-
-
-  const contentDiv =
-    document.createElement(
-      "div"
-    );
-
-  contentDiv.className =
-    "message-content";
-
-  contentDiv.textContent =
-    data.content;
-
-
-  const timeDiv =
-    document.createElement(
-      "div"
-    );
-
-  timeDiv.className =
-    "message-time";
-
-  timeDiv.textContent =
-    formatTime(
-      data.created_at
-    );
-
-
-  bubble.appendChild(
-    contentDiv
+  renderedIds.add(
+    data.id
   );
 
-  bubble.appendChild(
-    timeDiv
+  renderMessage(
+    data,
+    true
   );
-
-  messageList.appendChild(
-    bubble
-  );
-
-
-  messageList.scrollTop =
-    messageList.scrollHeight;
-
 
   return {
     success: true,
