@@ -23,12 +23,17 @@
 
 <body>
 
+  <!-- =========================
+       TOP BAR
+       ========================= -->
   <header class="topbar">
+
     <div class="brand">
       Komunikasi
     </div>
 
     <input
+      id="searchChat"
       type="search"
       placeholder="Search chat"
       aria-label="Cari chat"
@@ -41,76 +46,121 @@
     >
       +
     </button>
+
   </header>
 
+
+  <!-- =========================
+       MAIN
+       ========================= -->
   <main class="container">
-    <div
+
+    <!-- =========================
+         LIST VIEW
+         ========================= -->
+    <section
+      id="list-view"
       class="card"
-      style="padding: 0; overflow: hidden;"
+      style="
+        padding: 0;
+        overflow: hidden;
+      "
     >
 
-      <div class="list-item">
-        <div class="avatar"></div>
+      <div id="conversationList"></div>
 
-        <div>
-          <div style="font-weight: 700;">
-            Preview Chat
-          </div>
-
-          <div
-            style="
-              color: var(--muted);
-              font-size: 13px;
-            "
-          >
-            Halo, ini layout PHASE 5
-          </div>
-        </div>
-
-        <div
-          style="
-            margin-left: auto;
-            color: var(--muted);
-            font-size: 12px;
-          "
-        >
-          10:30
-        </div>
+      <div
+        id="emptyState"
+        style="
+          display: none;
+          padding: 24px;
+          text-align: center;
+          color: var(--muted);
+        "
+      >
+        Belum ada percakapan.
       </div>
 
-      <div class="list-item">
-        <div class="avatar"></div>
-
-        <div>
-          <div style="font-weight: 700;">
-            Grup Keluarga
-          </div>
-
-          <div
-            style="
-              color: var(--muted);
-              font-size: 13px;
-            "
-          >
-            Preview pesan terakhir...
-          </div>
-        </div>
-
-        <div
-          style="
-            margin-left: auto;
-            color: var(--muted);
-            font-size: 12px;
-          "
-        >
-          09:12
-        </div>
+      <div
+        id="loadingState"
+        style="
+          padding: 24px;
+          text-align: center;
+          color: var(--muted);
+        "
+      >
+        Memuat...
       </div>
 
-    </div>
+    </section>
+
+
+    <!-- =========================
+         CHAT VIEW
+         ========================= -->
+    <section
+      id="chat-view"
+      class="card"
+      style="
+        display: none;
+        padding: 0;
+        min-height: 70vh;
+        overflow: hidden;
+      "
+    >
+
+      <!-- Chat Header -->
+      <header class="chat-header">
+
+        <a
+          href="./chat.html"
+          class="btn"
+          aria-label="Kembali ke daftar chat"
+        >
+          ←
+        </a>
+
+        <span id="chat-title">
+          Chat
+        </span>
+
+      </header>
+
+
+      <!-- Message List -->
+      <div id="messageList"></div>
+
+
+      <!-- Input Area -->
+      <div class="input-area">
+
+        <textarea
+          id="msgInput"
+          placeholder="Ketik pesan..."
+          rows="1"
+          aria-label="Ketik pesan"
+        ></textarea>
+
+        <button
+          id="sendBtn"
+          class="btn"
+          type="button"
+        >
+          Kirim
+        </button>
+
+      </div>
+
+    </section>
+
   </main>
 
+
+  <!-- =========================
+       BOTTOM NAV
+       ========================= -->
   <nav class="bottom-nav">
+
     <a
       href="./chat.html"
       class="active"
@@ -129,16 +179,130 @@
     <a href="./profile.html">
       Profile
     </a>
+
   </nav>
 
+
+  <!-- =========================
+       JAVASCRIPT
+       ========================= -->
   <script type="module">
+
     import "../js/theme.js";
 
     import {
       checkSession
     } from "../js/auth.js";
 
-    await checkSession(true);
+    import {
+      loadConversations,
+      loadMessages,
+      sendMessage
+    } from "../js/chat.js";
+
+
+    const session =
+      await checkSession(true);
+
+
+    if (!session) {
+      throw new Error(
+        "User belum login."
+      );
+    }
+
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const convId =
+      params.get("id");
+
+
+    if (convId) {
+
+      await loadMessages(
+        convId
+      );
+
+
+      const input =
+        document.getElementById(
+          "msgInput"
+        );
+
+      const sendButton =
+        document.getElementById(
+          "sendBtn"
+        );
+
+
+      const send = async () => {
+
+        const content =
+          input.value.trim();
+
+
+        if (!content) {
+          return;
+        }
+
+
+        sendButton.disabled =
+          true;
+
+
+        const result =
+          await sendMessage(
+            convId,
+            content
+          );
+
+
+        sendButton.disabled =
+          false;
+
+
+        if (result?.success) {
+          input.value = "";
+          input.focus();
+        }
+
+      };
+
+
+      sendButton.addEventListener(
+        "click",
+        send
+      );
+
+
+      input.addEventListener(
+        "keydown",
+        (event) => {
+
+          if (
+            event.key === "Enter" &&
+            !event.shiftKey
+          ) {
+
+            event.preventDefault();
+
+            send();
+
+          }
+
+        }
+      );
+
+    } else {
+
+      await loadConversations();
+
+    }
+
   </script>
 
 </body>
