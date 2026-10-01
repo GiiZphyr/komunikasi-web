@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="id">
+
 <head>
   <meta charset="utf-8">
 
@@ -26,6 +27,7 @@
   <!-- =========================
        TOP BAR
        ========================= -->
+
   <header class="topbar">
 
     <div class="brand">
@@ -53,11 +55,11 @@
   <!-- =========================
        MAIN
        ========================= -->
+
   <main class="container">
 
-    <!-- =========================
-         LIST VIEW
-         ========================= -->
+    <!-- LIST VIEW -->
+
     <section
       id="list-view"
       class="card"
@@ -95,9 +97,8 @@
     </section>
 
 
-    <!-- =========================
-         CHAT VIEW
-         ========================= -->
+    <!-- CHAT VIEW -->
+
     <section
       id="chat-view"
       class="card"
@@ -109,13 +110,13 @@
       "
     >
 
-      <!-- Chat Header -->
       <header class="chat-header">
 
         <a
+          id="backBtn"
           href="./chat.html"
           class="btn"
-          aria-label="Kembali ke daftar chat"
+          aria-label="Kembali"
         >
           ←
         </a>
@@ -127,11 +128,11 @@
       </header>
 
 
-      <!-- Message List -->
-      <div id="messageList"></div>
+      <div
+        id="messageList"
+      ></div>
 
 
-      <!-- Input Area -->
       <div class="input-area">
 
         <textarea
@@ -157,8 +158,9 @@
 
 
   <!-- =========================
-       BOTTOM NAV
+       BOTTOM NAVIGATION
        ========================= -->
+
   <nav class="bottom-nav">
 
     <a
@@ -186,6 +188,7 @@
   <!-- =========================
        JAVASCRIPT
        ========================= -->
+
   <script type="module">
 
     import "../js/theme.js";
@@ -199,6 +202,10 @@
       loadMessages,
       sendMessage
     } from "../js/chat.js";
+
+    import {
+      unsubscribeMessages
+    } from "../js/realtime.js";
 
 
     const session =
@@ -238,39 +245,51 @@
           "sendBtn"
         );
 
-
-      const send = async () => {
-
-        const content =
-          input.value.trim();
-
-
-        if (!content) {
-          return;
-        }
+      const backButton =
+        document.getElementById(
+          "backBtn"
+        );
 
 
-        sendButton.disabled =
-          true;
+      const send =
+        async () => {
+
+          const content =
+            input.value.trim();
 
 
-        const result =
-          await sendMessage(
-            convId,
-            content
-          );
+          if (!content) {
+            return;
+          }
 
 
-        sendButton.disabled =
-          false;
+          sendButton.disabled =
+            true;
 
 
-        if (result?.success) {
-          input.value = "";
-          input.focus();
-        }
+          const result =
+            await sendMessage(
+              convId,
+              content
+            );
 
-      };
+
+          sendButton.disabled =
+            false;
+
+
+          if (
+            result?.success
+          ) {
+
+            input.value =
+              "";
+
+            input.focus();
+
+          }
+
+        };
 
 
       sendButton.addEventListener(
@@ -297,13 +316,30 @@
         }
       );
 
+
+      backButton.addEventListener(
+        "click",
+        () => {
+
+          unsubscribeMessages();
+
+        }
+      );
+
     } else {
 
       await loadConversations();
 
     }
 
+
+    window.addEventListener(
+      "beforeunload",
+      unsubscribeMessages
+    );
+
   </script>
 
 </body>
+
 </html>

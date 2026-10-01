@@ -5,11 +5,18 @@ import {
   unsubscribeMessages
 } from "./realtime.js";
 
+
 let renderedIds = new Set();
 
 
+/* =========================================================
+   FORMAT WAKTU
+   ========================================================= */
+
 function formatTime(dateString) {
-  return new Date(dateString).toLocaleTimeString(
+  return new Date(
+    dateString
+  ).toLocaleTimeString(
     "id-ID",
     {
       hour: "2-digit",
@@ -19,23 +26,38 @@ function formatTime(dateString) {
 }
 
 
-function renderMessage(message, isMe) {
-  const messageList =
-    document.getElementById("messageList");
+/* =========================================================
+   RENDER MESSAGE
+   ========================================================= */
 
-  const empty =
-    document.getElementById("emptyMsgState");
+function renderMessage(
+  message,
+  isMe
+) {
+  const messageList =
+    document.getElementById(
+      "messageList"
+    );
 
   if (!messageList) {
     return;
   }
 
+
+  const empty =
+    document.getElementById(
+      "emptyMsgState"
+    );
+
   if (empty) {
     empty.remove();
   }
 
+
   const bubble =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
   bubble.className =
     `message-bubble ${
@@ -44,28 +66,56 @@ function renderMessage(message, isMe) {
         : "message-other"
     }`;
 
+  bubble.dataset.id =
+    message.id;
+
+
   const content =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
   content.className =
     "message-content";
 
   content.textContent =
-    message.content || "";
+    message.deleted_at
+      ? "Pesan telah dihapus."
+      : (
+          message.type === "text"
+            ? message.content || ""
+            : `[${message.type}] ${
+                message.content || ""
+              }`
+        );
+
 
   const time =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
   time.className =
     "message-time";
 
   time.textContent =
-    formatTime(message.created_at);
+    formatTime(
+      message.created_at
+    );
 
-  bubble.appendChild(content);
-  bubble.appendChild(time);
 
-  messageList.appendChild(bubble);
+  bubble.appendChild(
+    content
+  );
+
+  bubble.appendChild(
+    time
+  );
+
+  messageList.appendChild(
+    bubble
+  );
+
 
   messageList.scrollTop =
     messageList.scrollHeight;
@@ -78,6 +128,7 @@ function renderMessage(message, isMe) {
 
 export async function loadConversations() {
   unsubscribeMessages();
+
 
   const list =
     document.getElementById(
@@ -94,9 +145,15 @@ export async function loadConversations() {
       "loadingState"
     );
 
-  if (!list || !empty || !loading) {
+
+  if (
+    !list ||
+    !empty ||
+    !loading
+  ) {
     return;
   }
+
 
   const {
     data: {
@@ -106,6 +163,7 @@ export async function loadConversations() {
   } =
     await supabase.auth.getSession();
 
+
   if (sessionError) {
     loading.textContent =
       "Session error: " +
@@ -114,6 +172,7 @@ export async function loadConversations() {
     return;
   }
 
+
   if (!session) {
     location.href =
       "../login.html";
@@ -121,8 +180,10 @@ export async function loadConversations() {
     return;
   }
 
+
   const uid =
     session.user.id;
+
 
   const {
     data: members,
@@ -144,6 +205,7 @@ export async function loadConversations() {
         uid
       );
 
+
   if (error) {
     loading.textContent =
       "Error: " +
@@ -151,6 +213,7 @@ export async function loadConversations() {
 
     return;
   }
+
 
   const conversations =
     (members || [])
@@ -160,21 +223,27 @@ export async function loadConversations() {
       )
       .filter(Boolean);
 
+
   loading.style.display =
     "none";
 
-  if (conversations.length === 0) {
+
+  if (
+    conversations.length === 0
+  ) {
     empty.style.display =
       "block";
 
     return;
   }
 
+
   const ids =
     conversations.map(
       (conversation) =>
         conversation.id
     );
+
 
   const {
     data: lastMessages,
@@ -199,6 +268,7 @@ export async function loadConversations() {
         }
       );
 
+
   if (messageError) {
     loading.textContent =
       "Error: " +
@@ -207,123 +277,134 @@ export async function loadConversations() {
     return;
   }
 
+
   const lastMap =
     new Map();
 
+
   (lastMessages || [])
-    .forEach((message) => {
-      if (
-        !lastMap.has(
-          message.conversation_id
-        )
-      ) {
-        lastMap.set(
-          message.conversation_id,
-          message
-        );
+    .forEach(
+      (message) => {
+        if (
+          !lastMap.has(
+            message.conversation_id
+          )
+        ) {
+          lastMap.set(
+            message.conversation_id,
+            message
+          );
+        }
       }
-    });
+    );
+
 
   list.innerHTML =
     conversations
-      .map((conversation) => {
-        const last =
-          lastMap.get(
-            conversation.id
-          );
+      .map(
+        (conversation) => {
 
-        const preview =
-          last
-            ? (
-                last.type !== "text"
-                  ? `[${last.type}] `
-                  : ""
-              ) +
-              (
-                last.content ||
-                ""
-              )
-            : "Belum ada pesan";
-
-        const time =
-          last
-            ? formatTime(
-                last.created_at
-              )
-            : "";
-
-        const name =
-          conversation.name ||
-          "Private Chat";
-
-        return `
-          <a
-            href="./chat.html?id=${encodeURIComponent(
+          const last =
+            lastMap.get(
               conversation.id
-            )}"
-            class="list-item"
-          >
+            );
 
-            <div class="avatar"></div>
 
-            <div
-              style="
-                min-width: 0;
-                flex: 1;
-              "
+          const preview =
+            last
+              ? (
+                  last.type !== "text"
+                    ? `[${last.type}] `
+                    : ""
+                ) +
+                (
+                  last.content ||
+                  ""
+                )
+              : "Belum ada pesan";
+
+
+          const time =
+            last
+              ? formatTime(
+                  last.created_at
+                )
+              : "";
+
+
+          const name =
+            conversation.name ||
+            "Private Chat";
+
+
+          return `
+            <a
+              href="./chat.html?id=${encodeURIComponent(
+                conversation.id
+              )}"
+              class="list-item"
             >
+
+              <div class="avatar"></div>
+
               <div
                 style="
-                  font-weight: 700;
-                  white-space: nowrap;
-                  overflow: hidden;
-                  text-overflow: ellipsis;
+                  min-width: 0;
+                  flex: 1;
                 "
               >
-                ${name}
+
+                <div
+                  style="
+                    font-weight: 700;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  "
+                >
+                  ${name}
+                </div>
+
+                <div
+                  style="
+                    color: var(--muted);
+                    font-size: 13px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  "
+                >
+                  ${preview}
+                </div>
+
               </div>
 
               <div
                 style="
+                  margin-left: 8px;
+                  font-size: 12px;
                   color: var(--muted);
-                  font-size: 13px;
-                  white-space: nowrap;
-                  overflow: hidden;
-                  text-overflow: ellipsis;
+                  flex-shrink: 0;
                 "
               >
-                ${preview}
+                ${time}
               </div>
-            </div>
 
-            <div
-              style="
-                margin-left: 8px;
-                font-size: 12px;
-                color: var(--muted);
-                flex-shrink: 0;
-              "
-            >
-              ${time}
-            </div>
-
-          </a>
-        `;
-      })
+            </a>
+          `;
+        }
+      )
       .join("");
 }
 
 
 /* =========================================================
-   6B - LOAD MESSAGES
+   6B + 6D-2B - LOAD MESSAGES
    ========================================================= */
 
-export async function loadMessages(convId) {
-  unsubscribeMessages();
-
-  renderedIds =
-    new Set();
-
+export async function loadMessages(
+  convId
+) {
   const listView =
     document.getElementById(
       "list-view"
@@ -344,6 +425,7 @@ export async function loadMessages(convId) {
       "chat-title"
     );
 
+
   if (
     !listView ||
     !chatView ||
@@ -351,6 +433,11 @@ export async function loadMessages(convId) {
   ) {
     return;
   }
+
+
+  /* =========================
+     SESSION
+     ========================= */
 
   const {
     data: {
@@ -360,12 +447,17 @@ export async function loadMessages(convId) {
   } =
     await supabase.auth.getSession();
 
-  if (sessionError || !session) {
+
+  if (
+    sessionError ||
+    !session
+  ) {
     location.href =
       "../login.html";
 
     return;
   }
+
 
   const uid =
     session.user.id;
@@ -392,6 +484,7 @@ export async function loadMessages(convId) {
       )
       .maybeSingle();
 
+
   if (memberError) {
     messageList.textContent =
       "Gagal memeriksa akses: " +
@@ -400,9 +493,10 @@ export async function loadMessages(convId) {
     return;
   }
 
+
   if (!member) {
     alert(
-      "Kamu tidak memiliki akses ke percakapan ini."
+      "Kamu tidak memiliki akses ke chat ini."
     );
 
     location.href =
@@ -420,7 +514,7 @@ export async function loadMessages(convId) {
     "none";
 
   chatView.style.display =
-    "block";
+    "flex";
 
 
   /* =========================
@@ -428,7 +522,8 @@ export async function loadMessages(convId) {
      ========================= */
 
   const {
-    data: conversation
+    data: conversation,
+    error: conversationError
   } =
     await supabase
       .from("conversations")
@@ -441,33 +536,61 @@ export async function loadMessages(convId) {
       )
       .maybeSingle();
 
-  chatTitle.textContent =
-    conversation?.name ||
-    (
-      conversation?.type === "group"
-        ? "Group Chat"
-        : "Private Chat"
-    );
+
+  if (
+    conversationError
+  ) {
+    chatTitle.textContent =
+      "Chat";
+  } else {
+    chatTitle.textContent =
+      conversation?.name ||
+      (
+        conversation?.type === "group"
+          ? "Group Chat"
+          : "Private Chat"
+      );
+  }
 
 
   /* =========================
-     SUBSCRIBE BEFORE INITIAL LOAD
+     RESET MESSAGE STATE
+     ========================= */
+
+  renderedIds =
+    new Set();
+
+
+  messageList.innerHTML = `
+    <div
+      id="emptyMsgState"
+      class="chat-empty"
+    >
+      Memuat...
+    </div>
+  `;
+
+
+  /* =========================
+     SUBSCRIBE FIRST
      ========================= */
 
   subscribeMessages(
     convId,
     renderedIds,
     (message) => {
+
       renderMessage(
         message,
         message.sender_id === uid
       );
+
     }
   );
 
 
   /* =========================
-     INITIAL MESSAGE LOAD
+     INITIAL MESSAGE FETCH
      ========================= */
 
   const {
@@ -496,64 +619,105 @@ export async function loadMessages(convId) {
         }
       );
 
+
   if (messagesError) {
-    messageList.textContent =
-      "Gagal memuat pesan: " +
-      messagesError.message;
+
+    messageList.innerHTML = `
+      <div
+        class="chat-empty"
+      >
+        ${messagesError.message}
+      </div>
+    `;
 
     return;
   }
 
 
-  messageList.innerHTML = "";
+  /* =========================
+     REMOVE LOADING
+     HANYA JIKA MASIH ADA
+     ========================= */
+
+  const loadingMessage =
+    document.getElementById(
+      "emptyMsgState"
+    );
+
+  if (loadingMessage) {
+    loadingMessage.remove();
+  }
+
+
+  /* =========================
+     RENDER INITIAL MESSAGES
+     ========================= */
 
   if (
     !messages ||
     messages.length === 0
   ) {
-    messageList.innerHTML = `
-      <div
-        id="emptyMsgState"
-        class="chat-empty"
-      >
-        Belum ada pesan.
-      </div>
-    `;
+
+    if (
+      renderedIds.size === 0
+    ) {
+
+      messageList.innerHTML = `
+        <div
+          id="emptyMsgState"
+          class="chat-empty"
+        >
+          Belum ada pesan.
+        </div>
+      `;
+
+    }
+
+  } else {
+
+    messages.forEach(
+      (message) => {
+
+        if (
+          renderedIds.has(
+            message.id
+          )
+        ) {
+          return;
+        }
+
+        renderedIds.add(
+          message.id
+        );
+
+        renderMessage(
+          message,
+          message.sender_id === uid
+        );
+
+      }
+    );
+
   }
 
 
-  (messages || [])
-    .forEach((message) => {
-
-      if (
-        renderedIds.has(message.id)
-      ) {
-        return;
-      }
-
-      renderedIds.add(
-        message.id
-      );
-
-      renderMessage(
-        message,
-        message.sender_id === uid
-      );
-
-    });
+  messageList.scrollTop =
+    messageList.scrollHeight;
 }
 
 
 /* =========================================================
-   6C + 6D - SEND MESSAGE
+   6C - SEND MESSAGE
    ========================================================= */
 
 export async function sendMessage(
   convId,
   content
 ) {
+
   const cleanContent =
     content.trim();
+
 
   if (!cleanContent) {
     return {
@@ -561,6 +725,11 @@ export async function sendMessage(
       error: "Pesan kosong."
     };
   }
+
+
+  /* =========================
+     SESSION
+     ========================= */
 
   const {
     data: {
@@ -570,7 +739,12 @@ export async function sendMessage(
   } =
     await supabase.auth.getSession();
 
-  if (sessionError || !session) {
+
+  if (
+    sessionError ||
+    !session
+  ) {
+
     location.href =
       "../login.html";
 
@@ -580,12 +754,13 @@ export async function sendMessage(
     };
   }
 
+
   const uid =
     session.user.id;
 
 
   /* =========================
-     MEMBERSHIP CHECK
+     MEMBERSHIP
      ========================= */
 
   const {
@@ -605,7 +780,9 @@ export async function sendMessage(
       )
       .maybeSingle();
 
+
   if (memberError) {
+
     alert(
       "Gagal memeriksa akses: " +
       memberError.message
@@ -617,7 +794,9 @@ export async function sendMessage(
     };
   }
 
+
   if (!member) {
+
     alert(
       "Kamu tidak memiliki akses ke chat ini."
     );
@@ -630,7 +809,7 @@ export async function sendMessage(
 
 
   /* =========================
-     INSERT MESSAGE
+     INSERT
      ========================= */
 
   const {
@@ -654,7 +833,9 @@ export async function sendMessage(
       `)
       .single();
 
+
   if (error) {
+
     alert(
       "Gagal mengirim pesan: " +
       error.message
@@ -671,14 +852,23 @@ export async function sendMessage(
      LOCAL RENDER
      ========================= */
 
-  renderedIds.add(
-    data.id
-  );
+  if (
+    !renderedIds.has(
+      data.id
+    )
+  ) {
 
-  renderMessage(
-    data,
-    true
-  );
+    renderedIds.add(
+      data.id
+    );
+
+    renderMessage(
+      data,
+      true
+    );
+
+  }
+
 
   return {
     success: true,

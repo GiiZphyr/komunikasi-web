@@ -1,13 +1,26 @@
 import { supabase } from "./supabase.js";
 
 let activeChannel = null;
+let activeConvId = null;
 
 export function subscribeMessages(
   convId,
   renderedIds,
   onInsert
 ) {
+  // Jangan membuat subscription kedua
+  // untuk conversation yang sama.
+  if (
+    activeChannel &&
+    activeConvId === convId
+  ) {
+    return activeChannel;
+  }
+
+  // Bersihkan channel lama.
   unsubscribeMessages();
+
+  activeConvId = convId;
 
   activeChannel = supabase
     .channel(`conv:${convId}`)
@@ -26,6 +39,7 @@ export function subscribeMessages(
           return;
         }
 
+        // Cegah duplicate message.
         if (renderedIds.has(message.id)) {
           return;
         }
@@ -37,8 +51,7 @@ export function subscribeMessages(
     )
     .subscribe((status) => {
       console.log(
-        `Realtime [${convId}]:`,
-        status
+        `Realtime [${convId}]: ${status}`
       );
     });
 
@@ -47,9 +60,18 @@ export function subscribeMessages(
 
 export function unsubscribeMessages() {
   if (!activeChannel) {
+    activeConvId = null;
     return;
   }
 
-  supabase.removeChannel(activeChannel);
+  supabase.removeChannel(
+    activeChannel
+  );
+
   activeChannel = null;
+  activeConvId = null;
+}
+
+export function getActiveConvId() {
+  return activeConvId;
 }
