@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Profile</title>
+    </head>
+    <body>
+    <button
+        id="logoutBtn"
+        class="btn"
+        type="button"
+        >Logout
+    </button>
+    <script type="module">
+    import {
+        checkSession,
+        signOut
+    } from "../js/auth.js";
+
+    const session = await checkSession(true);
+
+    if (session) {
+        document
+        .getElementById("logoutBtn")
+        .addEventListener("click", async () => {
+            await signOut();
+        });
+    }
+    </script>
+    </body>
+</html>

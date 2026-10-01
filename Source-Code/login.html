@@ -39,11 +39,11 @@
       <br><br>
 
       <button
+        id="loginBtn"
         class="btn"
         type="button"
-        style="width: 100%"
-      >
-        Login (PHASE 4)
+        style="width: 100%">
+          Login
       </button>
 
       <p>
@@ -63,5 +63,33 @@
       </p>
     </div>
   </div>
+  <script type="module">
+    import {
+      signIn,
+      checkSession
+    } from "./js/auth.js";
+
+    await checkSession(false);
+
+    document
+      .getElementById("loginBtn")
+      .addEventListener("click", async () => {
+        const email = document
+          .getElementById("email")
+          .value
+          .trim();
+
+        const password = document
+          .getElementById("pass")
+          .value;
+
+        if (!email || !password) {
+          alert("Email dan password wajib diisi.");
+          return;
+        }
+
+        await signIn(email, password);
+      });
+  </script>
 </body>
 </html>
