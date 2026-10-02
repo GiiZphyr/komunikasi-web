@@ -1,16 +1,80 @@
 /* =========================================================
-   KOMUNIKASI WEB
-   CHAT PAGE STYLE
-   PHASE 6
+   CONVERSATION LIST
    ========================================================= */
+
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--text);
+  transition: background-color 0.15s ease;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item:hover {
+  background: color-mix(
+    in srgb,
+    var(--steel) 20%,
+    transparent
+  );
+}
+
+
+/* =========================================================
+   AVATAR
+   ========================================================= */
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--steel);
+  border: 1px solid var(--border);
+}
+
+
+/* =========================================================
+   CONVERSATION CONTENT
+   ========================================================= */
+
+.conversation-content {
+  min-width: 0;
+  flex: 1;
+}
+
+.conversation-name {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conversation-preview {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conversation-time {
+  margin-left: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
 
 
 /* =========================================================
    CHAT VIEW
-   Memastikan layout selalu vertikal:
-   Header
-   Message list
-   Input area
    ========================================================= */
 
 #chat-view {
@@ -27,57 +91,44 @@
    ========================================================= */
 
 .chat-header {
-  width: 100%;
-  min-height: 56px;
-
-  padding: 8px 12px;
-
   display: flex;
   align-items: center;
-  gap: 12px;
-
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
-
-  background: var(--bg);
-  color: var(--text);
-
-  border-bottom: 1px solid var(--border);
 }
 
-.chat-header #chat-title {
+.chat-header-info {
+  min-width: 0;
+  flex: 1;
+  margin-left: 8px;
+}
+
+.chat-title {
   font-weight: 700;
-  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-
-/* =========================================================
-   CHAT LIST
-   ========================================================= */
-
-.list-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  padding: 12px;
-
-  border-bottom: 1px solid var(--border);
-
-  transition:
-    background-color 0.15s ease;
+.realtime-status {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
 }
 
-.list-item:last-child {
-  border-bottom: none;
+#realtimeStatus[data-state="SUBSCRIBED"] {
+  color: #16a34a;
 }
 
-.list-item:hover {
-  background:
-    color-mix(
-      in srgb,
-      var(--steel) 20%,
-      transparent
-    );
+#realtimeStatus[data-state="RECONNECTING"] {
+  color: #d97706;
+}
+
+#realtimeStatus[data-state="CHANNEL_ERROR"],
+#realtimeStatus[data-state="TIMED_OUT"],
+#realtimeStatus[data-state="CLOSED"] {
+  color: #dc2626;
 }
 
 
@@ -85,44 +136,15 @@
    MESSAGE LIST
    ========================================================= */
 
-#messageList {
-  width: 100%;
-
-  min-height: 60vh;
-  max-height: 70vh;
-
+.message-list {
+  flex: 1;
   padding: 16px;
-
   display: flex;
   flex-direction: column;
-  gap: 10px;
-
+  gap: 12px;
   overflow-y: auto;
-  overflow-x: hidden;
-
-  flex: 1;
-}
-
-
-/* =========================================================
-   MESSAGE SCROLLBAR
-   ========================================================= */
-
-#messageList::-webkit-scrollbar {
-  width: 5px;
-}
-
-#messageList::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-#messageList::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 999px;
-}
-
-#messageList::-webkit-scrollbar-thumb:hover {
-  background: var(--muted);
+  max-height: 70vh;
+  min-height: 0;
 }
 
 
@@ -131,94 +153,43 @@
    ========================================================= */
 
 .message-bubble {
-  max-width: min(75%, 520px);
-
-  padding: 9px 12px;
-
-  border: 1px solid var(--border);
+  max-width: 75%;
+  padding: 8px 12px;
   border-radius: 12px;
-
-  overflow-wrap: anywhere;
   word-break: break-word;
-
-  box-shadow: none;
+  overflow-wrap: anywhere;
 }
-
-
-/* =========================================================
-   PESAN SENDIRI
-   KANAN
-   ========================================================= */
 
 .message-me {
   align-self: flex-end;
-
   background: var(--steel);
-  color: #111111;
-
-  border-top-right-radius: 4px;
 }
-
-
-/* =========================================================
-   PESAN ORANG LAIN
-   KIRI
-   ========================================================= */
 
 .message-other {
   align-self: flex-start;
-
-  background: var(--card);
-  color: var(--text);
-
-  border-top-left-radius: 4px;
+  background: var(--border);
 }
 
-
-/* =========================================================
-   MESSAGE CONTENT
-   ========================================================= */
-
 .message-content {
-  line-height: 1.4;
-
   white-space: pre-wrap;
-
-  overflow-wrap: anywhere;
   word-break: break-word;
 }
 
-
-/* =========================================================
-   MESSAGE TIME
-   ========================================================= */
-
 .message-time {
   margin-top: 4px;
-
   font-size: 10px;
-  line-height: 1;
-
-  opacity: 0.65;
-
-  text-align: right;
+  opacity: 0.7;
 }
 
 
 /* =========================================================
-   EMPTY CHAT
+   EMPTY / LOADING MESSAGE
    ========================================================= */
 
 .chat-empty {
-  width: 100%;
-
-  margin: auto;
-
   padding: 24px;
-
-  color: var(--muted);
-
   text-align: center;
+  color: var(--muted);
 }
 
 
@@ -227,52 +198,26 @@
    ========================================================= */
 
 .input-area {
-  width: 100%;
-
-  padding: 12px;
-
   display: flex;
-  align-items: flex-end;
   gap: 8px;
-
-  flex-shrink: 0;
-
-  background: var(--bg);
-
+  padding: 12px;
   border-top: 1px solid var(--border);
+  flex-shrink: 0;
 }
-
-
-/* =========================================================
-   TEXTAREA
-   ========================================================= */
 
 .input-area textarea {
   flex: 1;
-
-  width: 100%;
-
+  min-width: 0;
+  resize: none;
   min-height: 40px;
   max-height: 120px;
-
-  padding: 8px 10px;
-
-  resize: none;
-
-  background: var(--bg);
-  color: var(--text);
-
-  border: 1px solid var(--border);
-  border-radius: 10px;
-
+  padding: 8px;
   font: inherit;
-
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
   outline: none;
-}
-
-.input-area textarea::placeholder {
-  color: var(--muted);
-  opacity: 1;
 }
 
 .input-area textarea:focus {
@@ -281,91 +226,40 @@
 
 
 /* =========================================================
-   SEND BUTTON
+   SCROLLBAR
    ========================================================= */
 
-.input-area .btn {
-  flex-shrink: 0;
+#messageList::-webkit-scrollbar {
+  width: 4px;
 }
 
-.input-area .btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+#messageList::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
 }
 
 
 /* =========================================================
-   AVATAR
-   ========================================================= */
-
-.avatar {
-  flex-shrink: 0;
-}
-
-
-/* =========================================================
-   RESPONSIVE DESKTOP
-   ========================================================= */
-
-@media (min-width: 768px) {
-
-  #messageList {
-    min-height: 60vh;
-    max-height: 70vh;
-  }
-
-  .message-bubble {
-    max-width: min(65%, 520px);
-  }
-
-}
-
-
-/* =========================================================
-   RESPONSIVE MOBILE
+   MOBILE
    ========================================================= */
 
 @media (max-width: 600px) {
 
-  #messageList {
-    min-height: 58vh;
-    max-height: 65vh;
-
-    padding: 12px;
-  }
-
   .message-bubble {
     max-width: 85%;
+  }
+
+  .message-list {
+    padding: 12px;
+    gap: 8px;
   }
 
   .input-area {
     padding: 8px;
   }
 
-  .input-area textarea {
-    min-height: 40px;
-    max-height: 100px;
-  }
-
-}
-
-
-/* =========================================================
-   VERY SMALL SCREEN
-   ========================================================= */
-
-@media (max-width: 400px) {
-
-  .message-bubble {
-    max-width: 90%;
-  }
-
-  .input-area {
-    gap: 6px;
-  }
-
-  .input-area .btn {
-    padding: 8px 10px;
+  .conversation-time {
+    display: none;
   }
 
 }

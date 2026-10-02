@@ -3,13 +3,12 @@
 
 <head>
   <meta charset="utf-8">
-
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1"
   >
 
-  <title>Obrolan - Komunikasi Web</title>
+  <title>Obrolan</title>
 
   <link
     rel="stylesheet"
@@ -24,12 +23,11 @@
 
 <body>
 
-  <!-- =========================
-       TOP BAR
-       ========================= -->
+  <!-- =====================================================
+       TOPBAR
+       ===================================================== -->
 
-  <header class="topbar">
-
+  <div class="topbar">
     <div class="brand">
       Komunikasi
     </div>
@@ -38,100 +36,116 @@
       id="searchChat"
       type="search"
       placeholder="Search chat"
-      aria-label="Cari chat"
     >
 
     <button
       class="btn"
       type="button"
-      aria-label="Tambah"
     >
       +
     </button>
+  </div>
 
-  </header>
 
+  <!-- =====================================================
+       MAIN CONTAINER
+       ===================================================== -->
 
-  <!-- =========================
-       MAIN
-       ========================= -->
+  <div class="container">
 
-  <main class="container">
+    <!-- ===================================================
+         CONVERSATION LIST
+         =================================================== -->
 
-    <!-- LIST VIEW -->
-
-    <section
+    <div
       id="list-view"
       class="card"
-      style="
-        padding: 0;
-        overflow: hidden;
-      "
+      style="padding:0;overflow:hidden"
     >
 
       <div id="conversationList"></div>
 
       <div
         id="emptyState"
-        style="
-          display: none;
-          padding: 24px;
-          text-align: center;
-          color: var(--muted);
-        "
+        class="chat-empty"
+        style="display:none"
       >
-        Belum ada percakapan.
+        Belum ada percakapan
       </div>
 
       <div
         id="loadingState"
-        style="
-          padding: 24px;
-          text-align: center;
-          color: var(--muted);
-        "
+        class="chat-empty"
       >
         Memuat...
       </div>
 
-    </section>
+    </div>
 
 
-    <!-- CHAT VIEW -->
+    <!-- ===================================================
+         CHAT VIEW
+         =================================================== -->
 
-    <section
+    <div
       id="chat-view"
       class="card"
       style="
-        display: none;
-        padding: 0;
-        min-height: 70vh;
-        overflow: hidden;
+        display:none;
+        padding:0;
+        min-height:70vh;
+        flex-direction:column;
       "
     >
 
-      <header class="chat-header">
+      <!-- ===============================================
+           CHAT HEADER
+           =============================================== -->
+
+      <div class="chat-header">
 
         <a
           id="backBtn"
           href="./chat.html"
           class="btn"
-          aria-label="Kembali"
         >
           ←
         </a>
 
-        <span id="chat-title">
-          Chat
-        </span>
+        <div class="chat-header-info">
 
-      </header>
+          <div
+            id="chat-title"
+            class="chat-title"
+          >
+            Chat
+          </div>
 
+          <div
+            id="realtimeStatus"
+            class="realtime-status"
+          >
+            Menghubungkan...
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- ===============================================
+           MESSAGE LIST
+           =============================================== -->
 
       <div
         id="messageList"
+        class="message-list"
       ></div>
 
+
+      <!-- ===============================================
+           MESSAGE INPUT
+           =============================================== -->
 
       <div class="input-area">
 
@@ -139,7 +153,6 @@
           id="msgInput"
           placeholder="Ketik pesan..."
           rows="1"
-          aria-label="Ketik pesan"
         ></textarea>
 
         <button
@@ -152,14 +165,14 @@
 
       </div>
 
-    </section>
+    </div>
 
-  </main>
+  </div>
 
 
-  <!-- =========================
+  <!-- =====================================================
        BOTTOM NAVIGATION
-       ========================= -->
+       ===================================================== -->
 
   <nav class="bottom-nav">
 
@@ -185,9 +198,9 @@
   </nav>
 
 
-  <!-- =========================
-       JAVASCRIPT
-       ========================= -->
+  <!-- =====================================================
+       MODULE SCRIPT
+       ===================================================== -->
 
   <script type="module">
 
@@ -208,16 +221,16 @@
     } from "../js/realtime.js";
 
 
-    const session =
-      await checkSession(true);
+    /* =====================================================
+       SESSION
+       ===================================================== */
+
+    await checkSession(true);
 
 
-    if (!session) {
-      throw new Error(
-        "User belum login."
-      );
-    }
-
+    /* =====================================================
+       GET CONVERSATION ID
+       ===================================================== */
 
     const params =
       new URLSearchParams(
@@ -228,12 +241,11 @@
       params.get("id");
 
 
+    /* =====================================================
+       CHAT MODE
+       ===================================================== */
+
     if (convId) {
-
-      await loadMessages(
-        convId
-      );
-
 
       const input =
         document.getElementById(
@@ -245,58 +257,49 @@
           "sendBtn"
         );
 
-      const backButton =
-        document.getElementById(
-          "backBtn"
-        );
+
+      /* ================================================
+         SEND FUNCTION
+         ================================================ */
+
+      const send = async () => {
+
+        const value =
+          input.value.trim();
+
+        if (!value) {
+          return;
+        }
+
+        const result =
+          await sendMessage(
+            convId,
+            value
+          );
+
+        if (
+          result?.success
+        ) {
+          input.value = "";
+          input.focus();
+        }
+
+      };
 
 
-      const send =
-        async () => {
-
-          const content =
-            input.value.trim();
-
-
-          if (!content) {
-            return;
-          }
-
-
-          sendButton.disabled =
-            true;
-
-
-          const result =
-            await sendMessage(
-              convId,
-              content
-            );
-
-
-          sendButton.disabled =
-            false;
-
-
-          if (
-            result?.success
-          ) {
-
-            input.value =
-              "";
-
-            input.focus();
-
-          }
-
-        };
-
+      /* ================================================
+         BUTTON
+         ================================================ */
 
       sendButton.addEventListener(
         "click",
         send
       );
 
+
+      /* ================================================
+         ENTER
+         ================================================ */
 
       input.addEventListener(
         "keydown",
@@ -310,32 +313,54 @@
             event.preventDefault();
 
             send();
-
           }
 
         }
       );
 
 
-      backButton.addEventListener(
-        "click",
-        () => {
+      /* ================================================
+         BACK BUTTON
+         ================================================ */
 
-          unsubscribeMessages();
+      document
+        .getElementById("backBtn")
+        .addEventListener(
+          "click",
+          () => {
+            unsubscribeMessages();
+          }
+        );
 
-        }
+
+      /* ================================================
+         LOAD CHAT
+         ================================================ */
+
+      await loadMessages(
+        convId
       );
 
     } else {
+
+      /* ================================================
+         LOAD CONVERSATION LIST
+         ================================================ */
 
       await loadConversations();
 
     }
 
 
+    /* =====================================================
+       PAGE CLEANUP
+       ===================================================== */
+
     window.addEventListener(
       "beforeunload",
-      unsubscribeMessages
+      () => {
+        unsubscribeMessages();
+      }
     );
 
   </script>
